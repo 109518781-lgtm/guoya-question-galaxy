@@ -1,6 +1,15 @@
 import { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { jsonError } from "@/lib/admin";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "content-type",
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
 
 export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,7 +23,7 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
     .single();
 
   if (readError || !current) {
-    return jsonError("Star not found", 404);
+    return Response.json({ error: "Star not found" }, { status: 404, headers: corsHeaders });
   }
 
   const { data, error } = await supabase
@@ -25,8 +34,8 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
     .single();
 
   if (error || !data) {
-    return jsonError("Unable to like star", 500);
+    return Response.json({ error: "Unable to like star" }, { status: 500, headers: corsHeaders });
   }
 
-  return Response.json(data);
+  return Response.json(data, { headers: corsHeaders });
 }

@@ -7,6 +7,7 @@ import { createBrowserClient } from "@/lib/supabase/browser";
 import type { Star } from "@/lib/types";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 type PositionedStar = Star & {
   x: number;
@@ -108,7 +109,7 @@ export default function StarsClient() {
     }
 
     setLiking(true);
-    const response = await fetch(`${basePath}/api/stars/${active.id}/like`, { method: "POST" }).catch(() => null);
+    const response = await fetch(`${apiBaseUrl || basePath}/api/stars/${active.id}/like`, { method: "POST" }).catch(() => null);
 
     if (response?.ok) {
       const updated = (await response.json()) as Star;
