@@ -1,0 +1,14 @@
+.next
+node_modules
+.env
+.env*.local
+vercel
+dist
+coverage
+.vercel
+.env*
+out
+.github-pages-disabled-api
+AGENTS.md
+sources
+.DS_Store
