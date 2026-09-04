@@ -5,6 +5,7 @@ import { ArrowRight, Sparkle } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const maxLength = 80;
 
 export default function SubmitClient() {
@@ -17,12 +18,6 @@ export default function SubmitClient() {
     event.preventDefault();
     const trimmed = content.trim();
 
-    if (!supabase) {
-      setState("error");
-      setMessage("Supabase 还没有配置，暂时不能提交。");
-      return;
-    }
-
     if (trimmed.length < 2) {
       setState("error");
       setMessage("请写下至少两个字。");
@@ -32,11 +27,21 @@ export default function SubmitClient() {
     setState("submitting");
     setMessage("");
 
-    const { error } = await supabase.from("stars").insert({
-      content: trimmed,
-      source: "tablet",
-      status: "published",
-    });
+    const response = !supabase
+      ? await fetch(`${apiBaseUrl || basePath}/api/stars`, {
+          body: JSON.stringify({ content: trimmed }),
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+        }).catch(() => null)
+      : null;
+
+    const { error } = supabase
+      ? await supabase.from("stars").insert({
+          content: trimmed,
+          source: "tablet",
+          status: "published",
+        })
+      : { error: response?.ok ? null : new Error("Unable to submit") };
 
     if (error) {
       setState("error");
@@ -102,11 +107,6 @@ export default function SubmitClient() {
             {message && (
               <p className={`mt-6 text-base ${state === "error" ? "text-clay" : "text-moss"}`} role="status">
                 {message}
-              </p>
-            )}
-            {!supabase && (
-              <p className="mt-4 text-sm text-clay" role="status">
-                当前缺少 Supabase 环境变量，配置后即可提交。
               </p>
             )}
           </form>

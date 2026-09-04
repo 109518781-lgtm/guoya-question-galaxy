@@ -39,13 +39,31 @@ export default function StarsClient() {
   const [liking, setLiking] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
     if (!supabase) {
-      setLoading(false);
-      return;
+      async function loadStarsFromApi() {
+        const response = await fetch(`${apiBaseUrl || basePath}/api/stars`, { cache: "no-store" }).catch(() => null);
+        if (!mounted) {
+          return;
+        }
+
+        if (response?.ok) {
+          const data = (await response.json()) as Star[];
+          setStars((data ?? []).map(positionStar));
+        }
+        setLoading(false);
+      }
+
+      loadStarsFromApi();
+      const interval = window.setInterval(loadStarsFromApi, 4000);
+      return () => {
+        mounted = false;
+        window.clearInterval(interval);
+      };
     }
 
     const client = supabase;
-    let mounted = true;
 
     async function loadStars() {
       const { data } = await client
