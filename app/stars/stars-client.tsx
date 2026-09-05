@@ -240,12 +240,12 @@ export default function StarsClient() {
           <p className="mt-7 text-sm font-medium tracking-[0.18em] text-rice/50 sm:mt-8 sm:text-base">
             期待更多星光被点亮
           </p>
+          {loading && (
+            <p className="galaxy-loading mt-4 text-xs font-medium tracking-[0.22em] text-rice/34 sm:mt-5 sm:text-sm">
+              正在等待星光
+            </p>
+          )}
         </div>
-        {loading && (
-          <p className="absolute left-1/2 top-[62%] z-[3] -translate-x-1/2 text-sm tracking-[0.24em] text-rice/40">
-            正在等待星光
-          </p>
-        )}
         {stars.map((star) => (
           <button
             aria-label={`查看问题：${star.content}`}
