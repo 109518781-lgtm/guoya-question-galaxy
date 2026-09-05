@@ -127,16 +127,6 @@ export default function StarsClient() {
     }
 
     setLiking(true);
-    const response = await fetch(`${apiBaseUrl || basePath}/api/stars/${active.id}/like`, { method: "POST" }).catch(() => null);
-
-    if (response?.ok) {
-      const updated = (await response.json()) as Star;
-      const positioned = positionStar(updated);
-      setActive(positioned);
-      setStars((current) => current.map((star) => (star.id === updated.id ? positioned : star)));
-      setLiking(false);
-      return;
-    }
 
     if (supabase) {
       const { data } = await supabase.rpc("increment_star_likes", { star_id: active.id });
@@ -144,7 +134,18 @@ export default function StarsClient() {
         const positioned = positionStar(data as Star);
         setActive(positioned);
         setStars((current) => current.map((star) => (star.id === active.id ? positioned : star)));
+        setLiking(false);
+        return;
       }
+    }
+
+    const response = await fetch(`${apiBaseUrl || basePath}/api/stars/${active.id}/like`, { method: "POST" }).catch(() => null);
+
+    if (response?.ok) {
+      const updated = (await response.json()) as Star;
+      const positioned = positionStar(updated);
+      setActive(positioned);
+      setStars((current) => current.map((star) => (star.id === updated.id ? positioned : star)));
     }
 
     setLiking(false);
